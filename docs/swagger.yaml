@@ -1,0 +1,65 @@
+definitions:
+  controller.BaseResponse:
+    properties:
+      message:
+        type: string
+      statusCode:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  controller.CreateProductRequest:
+    properties:
+      currency:
+        allOf:
+        - $ref: '#/definitions/types.CurrencyTypeEnum'
+        maximum: 2
+        minimum: 0
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - currency
+    - name
+    - price
+    type: object
+  types.CurrencyTypeEnum:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - Dollar
+    - Euro
+    - Pound
+info:
+  contact: {}
+paths:
+  /api/v1/product:
+    post:
+      parameters:
+      - description: CreateProductRequest
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateProductRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+      summary: Creates product
+      tags:
+      - product
+swagger: "2.0"
