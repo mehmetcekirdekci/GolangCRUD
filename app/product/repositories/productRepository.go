@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/mehmetcekirdekci/GolangCRUD/app/product/types"
 	"gorm.io/gorm"
 )
@@ -22,6 +23,10 @@ func NewProductRepository(db *gorm.DB) ProductRepository {
 }
 
 func (receiver *productRepository) Create(product types.Product) error {
-	err := receiver.db.Table(Products).Create(product).Error
-	return err
+	fmt.Printf(Products)
+	err := receiver.db.Table(Products).Create(&product).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

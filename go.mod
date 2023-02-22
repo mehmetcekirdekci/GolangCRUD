@@ -6,8 +6,8 @@ require (
 	github.com/go-playground/validator/v10 v10.11.2
 	github.com/labstack/echo/v4 v4.10.1
 	github.com/spf13/cobra v1.6.1
-	github.com/swaggo/echo-swagger v1.3.5
-	github.com/swaggo/swag v1.8.10
+	github.com/swaggo/echo-swagger v1.1.0
+	github.com/swaggo/swag v1.7.9
 	golang.org/x/net v0.7.0
 	gorm.io/driver/postgres v1.4.8
 	gorm.io/gorm v1.24.5
@@ -35,7 +35,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/swaggo/files v1.0.0 // indirect
+	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.6.0 // indirect

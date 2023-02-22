@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/mehmetcekirdekci/GolangCRUD/cmd/controllerInstance"
@@ -12,7 +13,6 @@ import (
 	"github.com/mehmetcekirdekci/GolangCRUD/cmd/serviceInstance"
 	echoextention "github.com/mehmetcekirdekci/GolangCRUD/pkg/echoExtention"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -53,13 +53,10 @@ func (apiCmd *api) apiCmdHandler() {
 	apiCmd.instance = echo.New()
 	apiCmd.instance.Use(middleware.Logger())
 	apiCmd.instance.Use(middleware.Recover())
-	apiCmd.instance.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	apiCmd.command.RunE = func(cmd *cobra.Command, args []string) error {
 
-		var postgreConnection *gorm.DB
-
-		postgreConnection = dbConnections.PostgreConnectionOpen()
+		postgreConnection := dbConnections.PostgreConnectionOpen()
 
 		productRepository := repositoryInstance.GetProductRepositoryInstance(postgreConnection)
 
@@ -67,7 +64,11 @@ func (apiCmd *api) apiCmdHandler() {
 
 		controllerInstance.ProductControllerInstance(productBaseService, apiCmd.instance)
 
-		apiCmd.instance.Logger.Fatal(apiCmd.instance.Start(":5000"))
+		apiCmd.instance.GET("/swagger/*", echoSwagger.WrapHandler)
+		go func() {
+			apiCmd.instance.Start(fmt.Sprintf(":%s", apiCmd.Port))
+		}()
+		//apiCmd.instance.Logger.Fatal(apiCmd.instance.Start(":5000"))
 		echoextention.Shutdown(apiCmd.instance, 2*time.Second)
 
 		return nil

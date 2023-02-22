@@ -73,7 +73,6 @@ const docTemplate = `{
         "controller.CreateProductRequest": {
             "type": "object",
             "required": [
-                "currency",
                 "name",
                 "price"
             ],

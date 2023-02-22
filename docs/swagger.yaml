@@ -20,7 +20,6 @@ definitions:
       price:
         type: number
     required:
-    - currency
     - name
     - price
     type: object

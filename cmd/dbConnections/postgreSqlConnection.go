@@ -14,8 +14,10 @@ func PostgreConnectionOpen() *gorm.DB {
 func postgreConnectionOpen() *gorm.DB {
 	var connection *gorm.DB
 	var err error
-	dsn := setDSN()
-	retryCount := getRetryCount()
+	//dsn := setDSN()
+	//retryCount := getRetryCount()
+	dsn := "host=localhost user=postgres password=5492 dbname=GolangCRUDPostgreSql port=5432 sslmode=disable"
+	retryCount := 3
 
 	for i := 0; i < retryCount; i++ {
 		connection, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
