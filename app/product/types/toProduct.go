@@ -7,3 +7,12 @@ func (createProductDto CreateProductDto) FromCreateProductDtoToProduct() *Produc
 	product.Currency = createProductDto.Currency
 	return product
 }
+
+func (updateProductDto UpdateProductDto) FromUpdateProductDtoToProduct() *Product {
+	product := new(Product)
+	product.Id = updateProductDto.Id
+	product.Name = updateProductDto.Name
+	product.Price = updateProductDto.Price
+	product.Currency = updateProductDto.Currency
+	return product
+}

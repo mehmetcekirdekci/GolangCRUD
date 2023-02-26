@@ -60,9 +60,17 @@ func (apiCmd *api) apiCmdHandler() {
 
 		productRepository := repositoryInstance.GetProductRepositoryInstance(postgreConnection)
 
+		mongoConnection := dbConnections.MongoConnectionOpen()
+
+		userRepository := repositoryInstance.GetUserRepositoryInstance(mongoConnection)
+
+		userBaseService := serviceInstance.GetUserBaseServiceInstance(userRepository)
+
 		productBaseService := serviceInstance.GetProductBaseServiceInstance(productRepository)
 
 		controllerInstance.ProductControllerInstance(productBaseService, apiCmd.instance)
+
+		controllerInstance.UserControllerInstance(userBaseService, apiCmd.instance)
 
 		apiCmd.instance.GET("/swagger/*", echoSwagger.WrapHandler)
 		go func() {

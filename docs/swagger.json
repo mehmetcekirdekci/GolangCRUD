@@ -5,6 +5,43 @@
     },
     "paths": {
         "/api/v1/product": {
+            "put": {
+                "tags": [
+                    "product"
+                ],
+                "summary": "Updates product by Id",
+                "parameters": [
+                    {
+                        "description": "UpdateProductRequest",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateProductRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.BaseResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "product"
@@ -74,6 +111,33 @@
                             "$ref": "#/definitions/types.CurrencyTypeEnum"
                         }
                     ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "controller.UpdateProductRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "price"
+            ],
+            "properties": {
+                "currency": {
+                    "minimum": 0,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.CurrencyTypeEnum"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/mehmetcekirdekci/GolangCRUD/app/product/services"
-	"github.com/mehmetcekirdekci/GolangCRUD/app/product/types"
+	"github.com/mehmetcekirdekci/GolangCRUD/app/user/services"
+	"github.com/mehmetcekirdekci/GolangCRUD/app/user/types"
 	"net/http"
-	"strconv"
 )
 
 type resource struct {
@@ -18,16 +18,16 @@ func NewController(baseService services.BaseService) *resource {
 	}
 }
 
-// CreateProduct godoc
-// @Summary Creates product
-// @Tags product
-// @Param request body CreateProductRequest true "CreateProductRequest"
+// CreateUser godoc
+// @Summary Creates user
+// @Tags user
+// @Param request body CreateUserRequest true "CreateUserRequest"
 // @Success 201 {object} BaseResponse
 // @Failure 400 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /api/v1/product [post]
-func (receiver *resource) CreateProduct(c echo.Context) error {
-	request := new(CreateProductRequest)
+// @Router /api/v1/user [post]
+func (receiver *resource) CreateUser(c echo.Context) error {
+	request := new(CreateUserRequest)
 	response := new(BaseResponse)
 	var resultMessage string
 	err := c.Bind(request)
@@ -42,8 +42,8 @@ func (receiver *resource) CreateProduct(c echo.Context) error {
 		return echo.NewHTTPError(response.StatusCode, response)
 	}
 
-	createProductDto := request.FromCreateProductRequestToCreateProductDto()
-	resultMessage, err = receiver.baseService.Create(*createProductDto)
+	createUserDto := request.FromCreateUserRequestToCreateUserDto()
+	resultMessage, err = receiver.baseService.Create(*createUserDto)
 	if err != nil {
 		response = ToBaseResponse(http.StatusInternalServerError, false, err.Error())
 		return echo.NewHTTPError(response.StatusCode, response)
@@ -52,19 +52,25 @@ func (receiver *resource) CreateProduct(c echo.Context) error {
 	return c.JSON(response.StatusCode, response)
 }
 
-// UpdateProduct godoc
-// @Summary Updates product by Id
-// @Tags product
-// @Param request body UpdateProductRequest true "UpdateProductRequest"
+// UpdateUser godoc
+// @Summary Updates user by CustomerId
+// @Tags user
+// @Param request body UpdateUserRequest true "UpdateUserRequest"
 // @Failure 201 {object} BaseResponse
 // @Failure 400 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /api/v1/product [put]
-func (receiver *resource) UpdateProduct(c echo.Context) error {
-	request := new(UpdateProductRequest)
+// @Router /api/v1/user [put]
+func (receiver *resource) UpdateUser(c echo.Context) error {
+	request := new(UpdateUserRequest)
 	response := new(BaseResponse)
 	var resultMessage string
 	err := c.Bind(request)
+	if err != nil {
+		response = ToBaseResponse(http.StatusBadRequest, false, err.Error())
+		return echo.NewHTTPError(response.StatusCode, response)
+	}
+
+	_, err = uuid.Parse(request.CustomerId)
 	if err != nil {
 		response = ToBaseResponse(http.StatusBadRequest, false, err.Error())
 		return echo.NewHTTPError(response.StatusCode, response)
@@ -76,10 +82,10 @@ func (receiver *resource) UpdateProduct(c echo.Context) error {
 		return echo.NewHTTPError(response.StatusCode, response)
 	}
 
-	updateProductDto := request.FromUpdateProductRequestToUpdateProductDto()
-	var updatedProduct *types.Product
-	updatedProduct, resultMessage, err = receiver.baseService.Update(*updateProductDto)
-	if err != nil && updatedProduct == nil || updatedProduct.Id == 0 {
+	updateUserDto := request.FromUpdateUserRequestToUpdateUserDto()
+	var updatedUser *types.User
+	updatedUser, resultMessage, err = receiver.baseService.Update(*updateUserDto)
+	if err != nil && updatedUser == nil || &updatedUser.Id == nil {
 		response = ToBaseResponse(http.StatusNotFound, false, err.Error())
 		return echo.NewHTTPError(response.StatusCode, response)
 	}
@@ -91,58 +97,61 @@ func (receiver *resource) UpdateProduct(c echo.Context) error {
 
 	response = ToBaseResponse(http.StatusCreated, true, resultMessage)
 	return c.JSON(response.StatusCode, response)
-
 }
 
-// GetProduct godoc
-// @Summary Gets product
-// @Tags product
-// @Param query int id true "id"
-// @Success 201 {object} GetProductResponse
+// GetUser godoc
+// @Summary Gets user by customerId
+// @Tags user
+// @Param query string customerId true "customerId"
+// @Success 201 {object} GetUserResponse
 // @Failure 400 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /api/v1/product [get]
-func (receiver *resource) GetProduct(c echo.Context) error {
-	response := new(GetProductResponse)
-	id, err := strconv.Atoi(c.QueryParam("id"))
+// @Router /api/v1/user [get]
+func (receiver *resource) GetUser(c echo.Context) error {
+	response := new(GetUserResponse)
+	customerId := c.QueryParam("customerId")
+
+	_, err := uuid.Parse(customerId)
 	if err != nil {
-		response := ToGetProductResponse(nil, http.StatusBadRequest, false, err.Error())
+		response = ToGetUserResponse(nil, http.StatusBadRequest, false, err.Error())
 		return echo.NewHTTPError(response.BaseResponse.StatusCode, response)
 	}
 
-	product, resultMessage, err := receiver.baseService.GetById(id)
-	if err != nil && product == nil || product.Id == 0 {
-		response := ToGetProductResponse(product, http.StatusNotFound, false, err.Error())
+	user, resultMessage, err := receiver.baseService.GetById(customerId)
+	if err != nil && user == nil || user.CustomerId == "" {
+		response := ToGetUserResponse(user, http.StatusNotFound, false, err.Error())
 		return echo.NewHTTPError(response.BaseResponse.StatusCode, response)
 	}
 
 	if err != nil {
-		response := ToGetProductResponse(nil, http.StatusInternalServerError, false, resultMessage)
+		response := ToGetUserResponse(nil, http.StatusInternalServerError, false, resultMessage)
 		return echo.NewHTTPError(response.BaseResponse.StatusCode, response)
 	}
 
-	response = ToGetProductResponse(product, http.StatusOK, true, resultMessage)
+	response = ToGetUserResponse(user, http.StatusOK, true, resultMessage)
 	return c.JSON(http.StatusOK, response)
 }
 
-// DeleteProduct godoc
-// @Summary Deletes product
-// @Tags product
-// @Param query int id true "id"
+// DeleteUser godoc
+// @Summary Deletes user
+// @Tags user
+// @Param query string customerId true "customerId"
 // @Success 200 {object} BaseResponse
 // @Failure 400 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /api/v1/product [delete]
-func (receiver *resource) DeleteProduct(c echo.Context) error {
+// @Router /api/v1/user [delete]
+func (receiver *resource) DeleteUser(c echo.Context) error {
 	response := new(BaseResponse)
-	id, err := strconv.Atoi(c.QueryParam("id"))
+	customerId := c.QueryParam("customerId")
+
+	_, err := uuid.Parse(customerId)
 	if err != nil {
 		response = ToBaseResponse(http.StatusBadRequest, false, err.Error())
 		return echo.NewHTTPError(response.StatusCode, response)
 	}
 
-	product, resultMessage, err := receiver.baseService.Delete(id)
-	if err != nil && product == nil || product.Id == 0 {
+	user, resultMessage, err := receiver.baseService.Delete(customerId)
+	if err != nil && user == nil || user.CustomerId == "" {
 		response = ToBaseResponse(http.StatusNotFound, false, err.Error())
 		return echo.NewHTTPError(response.StatusCode, response)
 	}

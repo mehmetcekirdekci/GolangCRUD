@@ -23,6 +23,23 @@ definitions:
     - name
     - price
     type: object
+  controller.UpdateProductRequest:
+    properties:
+      currency:
+        allOf:
+        - $ref: '#/definitions/types.CurrencyTypeEnum'
+        minimum: 0
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - id
+    - name
+    - price
+    type: object
   types.CurrencyTypeEnum:
     enum:
     - 0
@@ -59,6 +76,30 @@ paths:
           schema:
             $ref: '#/definitions/controller.BaseResponse'
       summary: Creates product
+      tags:
+      - product
+    put:
+      parameters:
+      - description: UpdateProductRequest
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UpdateProductRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.BaseResponse'
+      summary: Updates product by Id
       tags:
       - product
 swagger: "2.0"

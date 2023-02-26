@@ -12,11 +12,10 @@ func MakeHandler(instance *echo.Echo, s *resource) {
 	})
 
 	g := instance.Group("")
-	baseUrl := "api/v1/product"
+	baseUrl := "api/v1/user"
 
-	g.POST(fmt.Sprintf("%s", baseUrl), s.CreateProduct)
-	g.PUT(fmt.Sprintf("%s", baseUrl), s.UpdateProduct)
-	g.GET(fmt.Sprintf("%s", baseUrl), s.GetProduct)
-	g.DELETE(fmt.Sprintf("%s", baseUrl), s.DeleteProduct)
-
+	g.POST(fmt.Sprintf("%s", baseUrl), s.CreateUser)
+	g.PUT(fmt.Sprintf("%s", baseUrl), s.UpdateUser)
+	g.GET(fmt.Sprintf("%s", baseUrl), s.GetUser)
+	g.DELETE(fmt.Sprintf("%s", baseUrl), s.DeleteUser)
 }

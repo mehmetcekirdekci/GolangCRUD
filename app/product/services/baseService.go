@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/mehmetcekirdekci/GolangCRUD/app/product/repositories"
 	"github.com/mehmetcekirdekci/GolangCRUD/app/product/types"
 )
@@ -8,6 +9,9 @@ import (
 type (
 	BaseService interface {
 		Create(createProductDto types.CreateProductDto) (string, error)
+		Update(updateProductDto types.UpdateProductDto) (*types.Product, string, error)
+		GetById(id int) (*types.Product, string, error)
+		Delete(id int) (*types.Product, string, error)
 	}
 
 	baseService struct {
@@ -36,8 +40,107 @@ func (receiver *baseService) Create(createProductDto types.CreateProductDto) (st
 	return resultMessage, err
 }
 
+func (receiver *baseService) Update(updateProductDto types.UpdateProductDto) (*types.Product, string, error) {
+	var resultMessage string
+	var isOperationSuccesful bool
+	productToBeUpdated, err := getById(receiver, updateProductDto.Id)
+
+	ProductNotFound := err == nil && productToBeUpdated == nil
+	ProductFoundedSuccesfuly := err == nil && productToBeUpdated != nil && productToBeUpdated.Id != 0
+
+	if ProductNotFound {
+		err = errors.New(types.ObjectWasNotFound)
+	} else if ProductFoundedSuccesfuly {
+		isOperationSuccesful = true
+	}
+
+	if !isOperationSuccesful {
+		resultMessage = ResultMessageBuilder(isOperationSuccesful, err)
+		return nil, resultMessage, err
+	}
+
+	updatedProduct := updateProductDto.FromUpdateProductDtoToProduct()
+	err = update(receiver, *updatedProduct)
+	if err != nil {
+		isOperationSuccesful = false
+	}
+
+	resultMessage = ResultMessageBuilder(isOperationSuccesful, err)
+	return updatedProduct, resultMessage, err
+}
+
+func (receiver *baseService) GetById(id int) (*types.Product, string, error) {
+	var resultMessage string
+	var isOperationSuccesful bool
+	product, err := getById(receiver, id)
+
+	ProductNotFound := err == nil && product == nil
+	ProductFoundedSuccesfuly := err == nil && product != nil && product.Id != 0
+
+	if ProductNotFound {
+		err = errors.New(types.ObjectWasNotFound)
+	} else if ProductFoundedSuccesfuly {
+		isOperationSuccesful = true
+	}
+
+	resultMessage = ResultMessageBuilder(isOperationSuccesful, err)
+	return product, resultMessage, err
+}
+
+func (receiver *baseService) Delete(id int) (*types.Product, string, error) {
+	var resultMessage string
+	var isOperationSuccesful bool
+	productToBeDeleted, err := getById(receiver, id)
+
+	ProductNotFound := err == nil && productToBeDeleted == nil
+	ProductFoundedSuccesfuly := err == nil && productToBeDeleted != nil && productToBeDeleted.Id != 0
+
+	if ProductNotFound {
+		err = errors.New(types.ObjectWasNotFound)
+	} else if ProductFoundedSuccesfuly {
+		isOperationSuccesful = true
+	}
+
+	if !isOperationSuccesful {
+		resultMessage = ResultMessageBuilder(isOperationSuccesful, err)
+		return nil, resultMessage, err
+	}
+
+	err = delete(receiver, id)
+	if err != nil {
+		isOperationSuccesful = false
+	}
+
+	resultMessage = ResultMessageBuilder(isOperationSuccesful, err)
+	return productToBeDeleted, resultMessage, err
+}
+
 func create(receiver *baseService, product types.Product) error {
 	err := receiver.productRepository.Create(product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getById(receiver *baseService, id int) (*types.Product, error) {
+	product, err := receiver.productRepository.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+	return product, err
+}
+
+func update(receiver *baseService, product types.Product) error {
+	err := receiver.productRepository.Update(product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func delete(receiver *baseService, id int) error {
+	err := receiver.productRepository.Delete(id)
 	if err != nil {
 		return err
 	}
