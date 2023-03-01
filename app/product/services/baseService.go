@@ -32,7 +32,7 @@ func (receiver *baseService) Create(createProductDto types.CreateProductDto) (st
 	var resultMessage string
 	var isOperationSuccesful bool
 	product := createProductDto.FromCreateProductDtoToProduct()
-	err := create(receiver, *product)
+	err := receiver.productRepository.Create(*product)
 	if err == nil {
 		isOperationSuccesful = true
 	}
@@ -43,7 +43,7 @@ func (receiver *baseService) Create(createProductDto types.CreateProductDto) (st
 func (receiver *baseService) Update(updateProductDto types.UpdateProductDto) (*types.Product, string, error) {
 	var resultMessage string
 	var isOperationSuccesful bool
-	productToBeUpdated, err := getById(receiver, updateProductDto.Id)
+	productToBeUpdated, err := receiver.productRepository.GetById(updateProductDto.Id)
 
 	ProductNotFound := err == nil && productToBeUpdated == nil
 	ProductFoundedSuccesfuly := err == nil && productToBeUpdated != nil && productToBeUpdated.Id != 0
@@ -60,7 +60,7 @@ func (receiver *baseService) Update(updateProductDto types.UpdateProductDto) (*t
 	}
 
 	updatedProduct := updateProductDto.FromUpdateProductDtoToProduct()
-	err = update(receiver, *updatedProduct)
+	err = receiver.productRepository.Update(*updatedProduct)
 	if err != nil {
 		isOperationSuccesful = false
 	}
@@ -72,7 +72,7 @@ func (receiver *baseService) Update(updateProductDto types.UpdateProductDto) (*t
 func (receiver *baseService) GetById(id int) (*types.Product, string, error) {
 	var resultMessage string
 	var isOperationSuccesful bool
-	product, err := getById(receiver, id)
+	product, err := receiver.productRepository.GetById(id)
 
 	ProductNotFound := err == nil && product == nil
 	ProductFoundedSuccesfuly := err == nil && product != nil && product.Id != 0
@@ -90,7 +90,7 @@ func (receiver *baseService) GetById(id int) (*types.Product, string, error) {
 func (receiver *baseService) Delete(id int) (*types.Product, string, error) {
 	var resultMessage string
 	var isOperationSuccesful bool
-	productToBeDeleted, err := getById(receiver, id)
+	productToBeDeleted, err := receiver.productRepository.GetById(id)
 
 	ProductNotFound := err == nil && productToBeDeleted == nil
 	ProductFoundedSuccesfuly := err == nil && productToBeDeleted != nil && productToBeDeleted.Id != 0
@@ -106,7 +106,7 @@ func (receiver *baseService) Delete(id int) (*types.Product, string, error) {
 		return nil, resultMessage, err
 	}
 
-	err = delete(receiver, id)
+	err = receiver.productRepository.Delete(id)
 	if err != nil {
 		isOperationSuccesful = false
 	}
@@ -115,34 +115,10 @@ func (receiver *baseService) Delete(id int) (*types.Product, string, error) {
 	return productToBeDeleted, resultMessage, err
 }
 
-func create(receiver *baseService, product types.Product) error {
-	err := receiver.productRepository.Create(product)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func getById(receiver *baseService, id int) (*types.Product, error) {
 	product, err := receiver.productRepository.GetById(id)
 	if err != nil {
 		return nil, err
 	}
 	return product, err
-}
-
-func update(receiver *baseService, product types.Product) error {
-	err := receiver.productRepository.Update(product)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func delete(receiver *baseService, id int) error {
-	err := receiver.productRepository.Delete(id)
-	if err != nil {
-		return err
-	}
-	return nil
 }
